@@ -1,0 +1,120 @@
+var Confidence = require("confidence");
+
+var store = new Confidence.Store({
+    server: {
+        $filter: 'env',
+        production: {
+            connection: {
+                "hostname": "0.0.0.0",
+                "port": 7000
+            }
+        },
+        staging: {
+            connection: {
+                "hostname": "0.0.0.0",
+                "port": 7000
+            }
+        },
+        $default: {
+            connection: {
+                "hostname": "0.0.0.0",
+                "port": 7000
+            }
+        },
+    },
+
+    //twitter, google and facebook provided as examples, but you can add any provider that Bell supports here
+    //DO NOT uncomment providers you don't want to use because they will be parsed. This way you ONLY have to
+    // add a provider to make them available to the app.
+    
+    hapiBellCookieAuth: {
+        cacheExpires: 3 * 24 * 60 * 60 * 1000,
+        providers: {
+            $filter: 'env',
+            production: {
+                "twitter": {
+                    "provider": "twitter",
+                    "password": "doesnotmatter",
+                    "isSecure": false,
+                    "clientId": "consumer_Api_Key",
+                    "clientSecret": "consumer_Api_Secret",
+                }
+                // facebook: {
+                //     provider: 'facebook',
+                //     password: 'hapiauth',
+                //     clientId: '', // fill in your FB ClientId here
+                //     clientSecret: '', // fill in your FB Client Secret here
+                //     isSecure: false // Terrible idea but required if not using HTTPS
+                // },
+                // google: {
+                //     provider: 'google',
+                //     password: 'hapiauth',
+                //     clientId: '', // fill in your Google ClientId here
+                //     clientSecret: '', // fill in your Google Client Secret here
+                //     isSecure: false // Terrible idea but required if not using HTTPS
+                // }
+            },
+            staging: {
+                "twitter": {
+                    "provider": "twitter",
+                    "password": "doesnotmatter",
+                    "isSecure": false,
+                    "clientId": "consumer_Api_Key",
+                    "clientSecret": "consumer_Api_Secret",
+                }
+                // facebook: {
+                //     provider: 'facebook',
+                //     password: 'hapiauth',
+                //     clientId: '', // fill in your FB ClientId here
+                //     clientSecret: '', // fill in your FB Client Secret here
+                //     isSecure: false // Terrible idea but required if not using HTTPS
+                // },
+                // google: {
+                //     provider: 'google',
+                //     password: 'hapiauth',
+                //     clientId: '', // fill in your Google ClientId here
+                //     clientSecret: '', // fill in your Google Client Secret here
+                //     isSecure: false // Terrible idea but required if not using HTTPS
+                // }
+            }, // this is the default configuration if no env.ENVIRONMENT varaible is set.
+            $default: {
+                "cookie": {
+                    "password": "asdf987hkj1h234",
+                    "cookie": "sid",
+                    "redirectTo": "/", // IMPORTANT When a user tried to hit a mandatory auth route, this URL is where they'll be sent if they're not authenticated
+                    "redirectOnTry": false,
+                    "isSecure": false
+                },
+                "twitter": {
+                    "provider": "twitter",
+                    "password": "doesnotmatter",
+                    "isSecure": false,
+                    "clientId": "consumer_Api_Key",
+                    "clientSecret": "consumer_Api_Secret",
+                }
+                // facebook: {
+                //     provider: 'facebook',
+                //     password: 'hapiauth',
+                //     clientId: '', // fill in your FB ClientId here
+                //     clientSecret: '', // fill in your FB Client Secret here
+                //     isSecure: false // Terrible idea but required if not using HTTPS
+                // },
+                // google: {
+                //     provider: 'google',
+                //     password: 'hapiauth',
+                //     clientId: '', // fill in your Google ClientId here
+                //     clientSecret: '', // fill in your Google Client Secret here
+                //     isSecure: false // Terrible idea but required if not using HTTPS
+                // }
+            }
+        }
+    }
+});
+
+var criteria = {
+    env: process.env.ENVIRONMENT
+};
+
+exports.get = function(key) {
+    return store.get(key, criteria);
+};

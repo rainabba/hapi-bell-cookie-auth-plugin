@@ -1,0 +1,31 @@
+{
+  "name": "hapi-bell-cookie-auth-plugin",
+  "version": "0.0.1",
+  "description": "Hapi 8 sample app using Bell and hapi-auth-cookie to authenticate using bell (social providers) then setup and use a session using that auth and control pages with those schemes.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rainabba/hapi-bell-cookie-auth-plugin.git"
+  },
+  "keywords": [
+    "hapi",
+    "bell",
+    "authentication",
+    "hapi-auth-cookie"
+  ],
+  "author": "Michael Richardson",
+  "license": "ISC",
+  "dependencies": {
+    "hapi": "~8.8.0",
+    "bell": "~4.0.0",
+    "joi": "~6.5.0",
+    "lout": "~6.2.3",
+    "hoek": "~2.14.0",
+    "hapi-auth-cookie": "~3.0.1",
+    "confidence": "~1.1.0"
+  }
+}
