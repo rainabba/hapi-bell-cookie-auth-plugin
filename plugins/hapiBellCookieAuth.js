@@ -50,44 +50,66 @@ exports.register = function(server, options, next) {
 var setupProfile = {};
 
 // setupProfile.default is the catch-all. As provider-specific customizations are needed, additional setupProfile handlers should be created and chained off of default
-setupProfile.default = function( account ) {
-    return {
+setupProfile.default = function(account) {
+    return  {
             sid: account.provider + '::' + account.profile.id,
             token: account.token,
-            secret: account.secret,
             userName: account.profile.username,
-            avatar: account.profile.raw.profile_image_url.replace('_normal', ''),
-            about: account.profile.raw.description,
             fullName: account.profile.displayName,
+            about: account.profile.raw.description,
         };
+}
+
+setupProfile.twitter = function(account) {
+    var finalProfile = setupProfile.default( account );
+    finalProfile.avatar = account.profile.raw.profile_image_url.replace('_normal', '');
+    finalProfile.socialLink = 'https://twitter.com/' + account.profile.displayName + '/';
+    return finalProfile;
+}
+
+setupProfile.facebook = function(account) {       
+    var finalProfile = setupProfile.default( account );
+    finalProfile.email = account.profile.email;
+    finalProfile.socialLink = account.profile.raw.link;
+    return finalProfile;
 }
 
 
 exports.doAuth = function(request, reply) {
-    var t = request.auth.credentials;
 
-    if (t) {
+    if (request.auth.error) {
 
-        var profile = {};
-
-        if ( setupProfile[t.provider] ) {
-            profile = setupProfile[t.provider]( t );
-        } else {
-            profile = setupProfile.default( t );
-        }
-
-        request.server.app.cache.set(profile.sid, {
-            account: profile
-        }, 0, function(err) {
-            if (err) {
-                reply(err);
-            }
-            request.auth.session.clear();
-            request.auth.session.set(profile);
-        });
+        console.log( '\nAuthentication error!! \n');
+        console.log( request.auth );
 
     } else {
-        console.log('request.auth.credentials is null or doesn\'t exist');
+        var t = request.auth.credentials;
+
+        if (t) {
+
+            var profile = {};
+
+            if (setupProfile[t.provider]) {
+                profile = setupProfile[t.provider](t);
+            } else {
+                profile = setupProfile.default(t).final;
+            }
+
+            request.server.app.cache.set(profile.sid, {
+                account: profile
+            }, 0, function(err) {
+                if (err) {
+                    reply(err);
+                }
+                request.auth.session.clear();
+                request.auth.session.set(profile);
+            });
+
+        } else {
+            console.dir(request.auth);
+            console.log('request.auth.credentials is null or doesn\'t exist');
+        }
+
     }
 
     return reply.redirect('/');
