@@ -50,26 +50,35 @@ exports.register = function(server, options, next) {
 var setupProfile = {};
 
 // setupProfile.default is the catch-all. As provider-specific customizations are needed, additional setupProfile handlers should be created and chained off of default
-setupProfile.default = function(account) {
+setupProfile.default = function( account ) {
     return  {
             sid: account.provider + '::' + account.profile.id,
             token: account.token,
-            userName: account.profile.username,
             fullName: account.profile.displayName,
-            about: account.profile.raw.description,
         };
 }
 
 setupProfile.twitter = function(account) {
     var finalProfile = setupProfile.default( account );
+    finalProfile.userName = account.profile.username;
     finalProfile.avatar = account.profile.raw.profile_image_url.replace('_normal', '');
     finalProfile.socialLink = 'https://twitter.com/' + account.profile.displayName + '/';
+    finalProfile.about = account.profile.raw.description;
     return finalProfile;
 }
 
 setupProfile.facebook = function(account) {       
     var finalProfile = setupProfile.default( account );
     finalProfile.email = account.profile.email;
+    finalProfile.socialLink = account.profile.raw.link;
+    return finalProfile;
+}
+
+setupProfile.google = function(account) {       
+    var finalProfile = setupProfile.default( account );
+    finalProfile.fullName = account.profile.raw.name;
+    finalProfile.email = account.profile.email;
+    finalProfile.avatar = account.profile.raw.picture;
     finalProfile.socialLink = account.profile.raw.link;
     return finalProfile;
 }
@@ -92,8 +101,11 @@ exports.doAuth = function(request, reply) {
             if (setupProfile[t.provider]) {
                 profile = setupProfile[t.provider](t);
             } else {
+                console.dir ( t );
                 profile = setupProfile.default(t).final;
             }
+
+            console.dir( profile );
 
             request.server.app.cache.set(profile.sid, {
                 account: profile
